@@ -10,6 +10,8 @@ import venueRoutes from "./routes/venues";
 import applicationRoutes from "./routes/applications";
 import documentRoutes from "./routes/documents";
 import analyticsRoutes from "./routes/analytics";
+import { graphqlHTTP } from "express-graphql";
+import { schema, rootValue } from "./graphql/schema";
 
 // Load environment variables from .env
 dotenv.config({ path: path.join(__dirname, "../.env") });
@@ -27,6 +29,16 @@ app.use("/api/venues", venueRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
+// GraphQL Endpoint (GraphiQL GUI enabled in development)
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: schema,
+    rootValue: rootValue,
+    graphiql: true,
+  })
+);
 
 // Simple Health Check Endpoint
 app.get("/api/health", (_req, res) => {

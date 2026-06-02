@@ -7,17 +7,21 @@ import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import HirerDashboard from './pages/hirer/HirerDashboard'
 import VendorDashboard from './pages/vendor/VendorDashboard'
+import AdminDashboard from './pages/admin/AdminDashboard'
 
 function ProtectedRoute({
   children,
   role,
 }: {
   children: React.ReactNode
-  role?: 'hirer' | 'vendor'
+  role?: 'hirer' | 'vendor' | 'admin'
 }) {
   const { currentUser } = useAuth()
   if (!currentUser) return <Navigate to="/sign-in" replace />
   if (role && currentUser.role !== role) {
+    if (currentUser.role === 'admin') {
+      return <Navigate to="/admin" replace />
+    }
     return <Navigate to={currentUser.role === 'hirer' ? '/hirer' : '/vendor'} replace />
   }
   return <>{children}</>
@@ -35,7 +39,16 @@ function AppRoutes() {
             path="/sign-in"
             element={
               currentUser ? (
-                <Navigate to={currentUser.role === 'hirer' ? '/hirer' : '/vendor'} replace />
+                <Navigate
+                  to={
+                    currentUser.role === 'admin'
+                      ? '/admin'
+                      : currentUser.role === 'hirer'
+                      ? '/hirer'
+                      : '/vendor'
+                  }
+                  replace
+                />
               ) : (
                 <SignIn />
               )
@@ -57,6 +70,10 @@ function AppRoutes() {
                 <VendorDashboard />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/admin/*"
+            element={<AdminDashboard />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

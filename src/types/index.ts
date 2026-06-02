@@ -1,4 +1,4 @@
-export type UserRole = 'hirer' | 'vendor';
+export type UserRole = 'hirer' | 'vendor' | 'admin';
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 export type SortMode = 'date' | 'reputation';
 
@@ -23,6 +23,7 @@ export interface Venue {
   imageUrl: string;
   pricePerHour: number;
   isBlocked: boolean;
+  isFeatured?: boolean;
   blockedFrom?: string;
   blockedUntil?: string;
   blockReason?: string;

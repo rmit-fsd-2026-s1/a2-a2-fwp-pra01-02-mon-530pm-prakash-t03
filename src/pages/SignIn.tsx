@@ -79,7 +79,11 @@ export default function SignIn() {
     const userRole = result.user.role
 
     setTimeout(() => {
-      navigate(userRole === 'vendor' ? '/vendor' : '/hirer')
+      if (userRole === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate(userRole === 'vendor' ? '/vendor' : '/hirer')
+      }
     }, 700)
   }
 

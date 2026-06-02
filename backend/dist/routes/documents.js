@@ -55,6 +55,28 @@ router.get("/", auth_1.authenticateToken, async (req, res) => {
         return res.status(500).json({ message: "Server error occurred while fetching verification documents." });
     }
 });
+// Retrieve specific hirer's verification documents (Vendors/Admins only)
+router.get("/:hirerId", auth_1.authenticateToken, async (req, res) => {
+    if (!req.user || req.user.role === "hirer") {
+        return res.status(403).json({ message: "Forbidden. Restricted to vendors and admins." });
+    }
+    const { hirerId } = req.params;
+    try {
+        const doc = await docRepository.findOneBy({ hirerId });
+        if (!doc) {
+            return res.status(200).json({
+                hirerId,
+                isBusinessApplicant: false,
+                credibilityScore: 0.00
+            });
+        }
+        return res.status(200).json(doc);
+    }
+    catch (error) {
+        console.error("Fetch hirer documents error:", error);
+        return res.status(500).json({ message: "Server error occurred while fetching verification documents." });
+    }
+});
 // Upload / Update verification documents (and auto-calculate score)
 router.post("/", auth_1.authenticateToken, async (req, res) => {
     if (!req.user || req.user.role !== "hirer") {
