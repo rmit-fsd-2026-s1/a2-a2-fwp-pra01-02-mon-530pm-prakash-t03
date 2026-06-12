@@ -35,7 +35,7 @@ export default function HirerDocumentsPage() {
           setLiabData(doc.publicLiabilityData ?? '')
           setCertName(doc.businessCertName ?? '')
           setCertData(doc.businessCertData ?? '')
-          setCredibility(doc.credibilityScore ?? 0)
+          setCredibility(Number(doc.credibilityScore ?? 0))
         }
         setLoading(false)
       })
@@ -100,7 +100,7 @@ export default function HirerDocumentsPage() {
 
     try {
       const res = await api.saveDocuments(docPayload)
-      setCredibility(res.document.credibilityScore)
+      setCredibility(Number(res.document.credibilityScore))
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {

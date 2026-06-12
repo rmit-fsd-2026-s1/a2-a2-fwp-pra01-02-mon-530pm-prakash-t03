@@ -29,6 +29,17 @@ export const api = {
     return res.json();
   },
 
+  updateVenue: async (id: string, venueData: Partial<Venue>): Promise<{ message: string; venue: Venue }> => {
+    const res = await fetch(`${API_BASE}/venues/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(venueData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to update venue');
+    return data;
+  },
+
   // Applications
   getApplications: async (): Promise<Application[]> => {
     const res = await fetch(`${API_BASE}/applications`, {

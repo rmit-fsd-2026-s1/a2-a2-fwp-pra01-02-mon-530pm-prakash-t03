@@ -240,8 +240,8 @@ function ApplicantCard({
                     )}
                     <div style={{ marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Credibility:</span>
-                      <StarRating value={Math.round(details.documents.credibilityScore)} readOnly size="sm" />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{details.documents.credibilityScore.toFixed(1)}/5</span>
+                      <StarRating value={Math.round(Number(details.documents.credibilityScore))} readOnly size="sm" />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{Number(details.documents.credibilityScore).toFixed(1)}/5</span>
                     </div>
                   </div>
                 )}

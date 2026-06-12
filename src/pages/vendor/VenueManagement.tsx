@@ -1,18 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { getVenues, updateVenue } from '../../utils/storage'
+import { updateVenue } from '../../utils/storage'
+import { api } from '../../utils/api'
 import type { Venue } from '../../types'
 
 export default function VenueManagement() {
   const { currentUser } = useAuth()
-  const [venues, setVenues] = useState(() => getVenues().filter(v => v.vendorId === currentUser?.id))
+  const [venues, setVenues] = useState<Venue[]>([])
   const [blocking, setBlocking] = useState<string | null>(null)
   const [blockFrom, setBlockFrom] = useState('')
   const [blockUntil, setBlockUntil] = useState('')
   const [blockReason, setBlockReason] = useState('')
   const [blockErrors, setBlockErrors] = useState<Record<string, string>>({})
 
-  const refresh = () => setVenues(getVenues().filter(v => v.vendorId === currentUser?.id))
+  const refresh = async () => {
+    try {
+      const data = await api.getVenues()
+      setVenues(data.filter(v => v.vendorId === currentUser?.id))
+    } catch (err) {
+      console.error('Failed to fetch venues:', err)
+    }
+  }
+
+  useEffect(() => {
+    if (currentUser) {
+      refresh()
+    }
+  }, [currentUser])
 
   const openBlock = (venue: Venue) => {
     setBlocking(venue.id)
@@ -22,7 +36,7 @@ export default function VenueManagement() {
     setBlockErrors({})
   }
 
-  const confirmBlock = () => {
+  const confirmBlock = async () => {
     const errs: Record<string, string> = {}
     if (!blockFrom) errs.from = 'Start date is required.'
     if (!blockUntil) errs.until = 'End date is required.'
@@ -33,15 +47,39 @@ export default function VenueManagement() {
 
     const venue = venues.find(v => v.id === blocking)
     if (!venue) return
-    updateVenue({ ...venue, isBlocked: true, blockedFrom: blockFrom, blockedUntil: blockUntil, blockReason })
-    setBlocking(null)
-    refresh()
+
+    try {
+      await api.updateVenue(venue.id, {
+        isBlocked: true,
+        blockedFrom: blockFrom,
+        blockedUntil: blockUntil,
+        blockReason,
+      })
+      // Sync local storage in case offline mocks fallback on it
+      updateVenue({ ...venue, isBlocked: true, blockedFrom: blockFrom, blockedUntil: blockUntil, blockReason })
+      setBlocking(null)
+      refresh()
+    } catch (err) {
+      console.error(err)
+      alert('Failed to block venue on the server.')
+    }
   }
 
   // Unblocks venue
-  const unblock = (venue: Venue) => {
-    updateVenue({ ...venue, isBlocked: false, blockedFrom: undefined, blockedUntil: undefined, blockReason: undefined })
-    refresh()
+  const unblock = async (venue: Venue) => {
+    try {
+      await api.updateVenue(venue.id, {
+        isBlocked: false,
+        blockedFrom: null as any,
+        blockedUntil: null as any,
+        blockReason: null as any,
+      })
+      updateVenue({ ...venue, isBlocked: false, blockedFrom: undefined, blockedUntil: undefined, blockReason: undefined })
+      refresh()
+    } catch (err) {
+      console.error(err)
+      alert('Failed to unblock venue on the server.')
+    }
   }
 
   return (

@@ -39,10 +39,10 @@ export class Venue {
   isFeatured!: boolean;
 
   @Column({ type: "timestamp", nullable: true })
-  blockedFrom?: Date;
+  blockedFrom?: Date | null;
 
   @Column({ type: "timestamp", nullable: true })
-  blockedUntil?: Date;
+  blockedUntil?: Date | null;
 
   @Column({ type: "text", nullable: true })
   blockReason?: string;

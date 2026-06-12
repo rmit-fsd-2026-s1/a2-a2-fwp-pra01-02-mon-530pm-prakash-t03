@@ -50,7 +50,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 // Initialize Database & Start Server
-const startServer = async () => {
+export const startServer = async () => {
   try {
     await createDatabaseIfNotExists();
     await AppDataSource.initialize();
@@ -65,4 +65,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
+
+export { app };

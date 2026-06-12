@@ -22,7 +22,9 @@ export default function BrowseVenues({ onApply }: Props) {
   const [selected, setSelected] = useState<Venue | null>(null)
 
   useEffect(() => {
-    api.getVenues().then(setVenues).catch(console.error)
+    api.getVenues()
+      .then(data => setVenues(data.filter(v => !v.isBlocked)))
+      .catch(console.error)
   }, [])
 
   const filtered = useMemo(() => {

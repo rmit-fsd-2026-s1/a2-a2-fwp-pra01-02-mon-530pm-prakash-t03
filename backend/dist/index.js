@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = exports.startServer = void 0;
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -53,6 +54,7 @@ const schema_1 = require("./graphql/schema");
 // Load environment variables from .env
 dotenv.config({ path: path.join(__dirname, "../.env") });
 const app = (0, express_1.default)();
+exports.app = app;
 const PORT = process.env.PORT || 5000;
 // Middleware
 app.use((0, cors_1.default)());
@@ -92,4 +94,7 @@ const startServer = async () => {
         process.exit(1);
     }
 };
-startServer();
+exports.startServer = startServer;
+if (process.env.NODE_ENV !== "test") {
+    (0, exports.startServer)();
+}

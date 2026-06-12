@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import HomePage from './pages/HomePage'
 import SignIn from './pages/SignIn'
@@ -31,7 +30,6 @@ function AppRoutes() {
   const { currentUser } = useAuth()
   return (
     <div className="page-wrapper">
-      <Header />
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />

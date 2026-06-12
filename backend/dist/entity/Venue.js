@@ -63,11 +63,11 @@ __decorate([
 ], Venue.prototype, "isFeatured", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "timestamp", nullable: true }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], Venue.prototype, "blockedFrom", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "timestamp", nullable: true }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], Venue.prototype, "blockedUntil", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "text", nullable: true }),
