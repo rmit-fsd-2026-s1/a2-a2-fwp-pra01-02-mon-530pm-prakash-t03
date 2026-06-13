@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - DOCUMENTS.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Router, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { HirerDocument } from "../entity/HirerDocument";

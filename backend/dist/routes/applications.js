@@ -4,6 +4,7 @@ const express_1 = require("express");
 const data_source_1 = require("../data-source");
 const Application_1 = require("../entity/Application");
 const Venue_1 = require("../entity/Venue");
+const HireHistory_1 = require("../entity/HireHistory");
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 const appRepository = data_source_1.AppDataSource.getRepository(Application_1.Application);
@@ -134,7 +135,7 @@ router.put("/:id/status", auth_1.authenticateToken, async (req, res) => {
         return res.status(403).json({ message: "Only vendors can manage bookings." });
     }
     const { id } = req.params;
-    const { status, vendorComment } = req.body;
+    const { status, vendorComment, rating } = req.body;
     if (status !== "approved" && status !== "rejected") {
         return res.status(400).json({ message: "Invalid status value. Must be 'approved' or 'rejected'." });
     }
@@ -154,6 +155,20 @@ router.put("/:id/status", auth_1.authenticateToken, async (req, res) => {
         app.vendorComment = vendorComment || "";
         if (status === "approved") {
             app.approvedAt = new Date();
+            // Create a HireHistory entry when approved
+            const historyRepository = data_source_1.AppDataSource.getRepository(HireHistory_1.HireHistory);
+            const shortId = Math.random().toString(36).substring(2, 7);
+            const historyId = `hist-${shortId}`;
+            const newHistory = historyRepository.create({
+                id: historyId,
+                hirerId: app.hirerId,
+                vendorId: app.venue.vendorId,
+                venueId: app.venueId,
+                eventName: app.eventName,
+                dateOfHire: app.eventDate,
+                rating: rating !== undefined ? parseInt(String(rating), 10) : 5,
+            });
+            await historyRepository.save(newHistory);
         }
         else {
             app.approvedAt = undefined;

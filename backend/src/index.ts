@@ -1,17 +1,26 @@
+/**
+ * REST API BACKEND SERVER - INDEX.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { AppDataSource } from "./data-source";
-import { createDatabaseIfNotExists } from "./create-db";
 import authRoutes from "./routes/auth";
 import venueRoutes from "./routes/venues";
 import applicationRoutes from "./routes/applications";
 import documentRoutes from "./routes/documents";
 import analyticsRoutes from "./routes/analytics";
-import { graphqlHTTP } from "express-graphql";
-import { schema, rootValue } from "./graphql/schema";
 
 // Load environment variables from .env
 dotenv.config({ path: path.join(__dirname, "../.env") });
@@ -30,16 +39,6 @@ app.use("/api/applications", applicationRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-// GraphQL Endpoint (GraphiQL GUI enabled in development)
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: schema,
-    rootValue: rootValue,
-    graphiql: true,
-  })
-);
-
 // Simple Health Check Endpoint
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -52,7 +51,6 @@ app.get("/api/health", (_req, res) => {
 // Initialize Database & Start Server
 export const startServer = async () => {
   try {
-    await createDatabaseIfNotExists();
     await AppDataSource.initialize();
     console.log("MySQL Database connection successfully established via TypeORM.");
     

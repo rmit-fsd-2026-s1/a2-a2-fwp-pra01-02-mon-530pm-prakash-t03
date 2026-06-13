@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - DATA-SOURCE.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";

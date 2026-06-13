@@ -88,6 +88,7 @@ exports.schema = (0, graphql_1.buildSchema)(`
   type Query {
     adminLogin(email: String!, password: String!): AdminLoginResult!
     getAllVenues: [Venue!]!
+    getAllVendors: [AdminUser!]!
     generateReportPopularity: [PopularVenueReport!]!
     generateReportActiveApplicants: [ActiveApplicantReport!]!
   }
@@ -158,14 +159,37 @@ exports.rootValue = {
         const venueRepository = data_source_1.AppDataSource.getRepository(Venue_1.Venue);
         return venueRepository.find();
     },
+    getAllVendors: async () => {
+        const userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
+        return userRepository.find({ where: { role: "vendor" } });
+    },
     addVenue: async (args) => {
         const venueRepository = data_source_1.AppDataSource.getRepository(Venue_1.Venue);
+        const userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
         const shortId = Math.random().toString(36).substring(2, 7);
         const venueId = `venue-${shortId}`;
-        // Admin adds venue, assign default vendor (vendor-001) for safety initially
+        // Admin adds venue. Dynamically find the first available vendor in the DB,
+        // or seed/create 'vendor-001' if none exists, preventing foreign key constraint errors.
+        let vendorId = "vendor-001";
+        const existingVendor = await userRepository.findOneBy({ role: "vendor" });
+        if (existingVendor) {
+            vendorId = existingVendor.id;
+        }
+        else {
+            const hashedPassword = bcrypt.hashSync("Password1!", 10);
+            const defaultVendor = userRepository.create({
+                id: "vendor-001",
+                email: "vendor@vv.com",
+                password: hashedPassword,
+                role: "vendor",
+                name: "Anand Prabu",
+                phone: "0488123401",
+            });
+            await userRepository.save(defaultVendor);
+        }
         const newVenue = venueRepository.create({
             id: venueId,
-            vendorId: "vendor-001",
+            vendorId: vendorId,
             name: args.name,
             location: args.location,
             capacity: args.capacity,

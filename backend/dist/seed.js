@@ -107,8 +107,8 @@ async function seed() {
         },
         {
             id: "admin-001",
-            email: "admin@vv.com",
-            password: hashedPassword,
+            email: "admin",
+            password: bcrypt.hashSync("admin", 10),
             role: "admin",
             name: "Administrator",
             phone: "0488123499",

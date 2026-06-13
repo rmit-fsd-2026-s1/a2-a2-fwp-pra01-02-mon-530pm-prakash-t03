@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - ANALYTICS.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Router, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Application } from "../entity/Application";
@@ -61,6 +73,8 @@ router.get("/vendor", authenticateToken as any, async (req: AuthRequest, res: Re
 
     const chartColours = ["#1E3A8A", "#0EA5E9", "#10B981", "#8B5CF6", "#F59E0B", "#EF4444"];
 
+    // Map the pie chart dataset for the frontend visualization widget.
+    // Note: I only display applicants with at least one approved selection as standard slices.
     const pieChartData = [
       ...analyticsData
         .filter((item) => item.selected > 0)
@@ -68,6 +82,9 @@ router.get("/vendor", authenticateToken as any, async (req: AuthRequest, res: Re
           name: item.name,
           value: item.selected,
         })),
+      // Explanatory comment: I include a dummy slice with a small weight (0.1) for applicants who
+      // have never been selected. This ensures that they are visible on the frontend chart legend
+      // and do not cause division-by-zero or empty-chart errors in the drawing library.
       ...(neverSelectedApplicants.length > 0
         ? [
             {
@@ -102,7 +119,10 @@ router.get("/history/:hirerId", authenticateToken as any, async (req: AuthReques
       relations: ["venue", "vendor"]
     });
 
-    // Calculate dynamic reputation score
+    // Explanatory comment: Calculate dynamic reputation score as the arithmetic mean of all ratings
+    // left by vendors from past bookings. I round it to exactly one decimal place (e.g. 4.7) 
+    // to present a neat, standard rating badge on the dashboard. If no hire history exists,
+    // reputation defaults to 0.
     let reputation = 0;
     if (history.length > 0) {
       const avg = history.reduce((sum, h) => sum + h.rating, 0) / history.length;

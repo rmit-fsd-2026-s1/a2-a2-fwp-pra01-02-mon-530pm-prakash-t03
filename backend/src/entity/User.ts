@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - USER.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Entity, PrimaryColumn, Column, CreateDateColumn, OneToMany, OneToOne } from "typeorm";
 import { Venue } from "./Venue";
 import { Application } from "./Application";
@@ -25,7 +37,7 @@ export class User {
   @Column({ type: "varchar", length: 20 })
   phone!: string;
 
-  @Column({ type: "varchar", length: 255, nullable: true })
+  @Column({ type: "mediumtext", nullable: true })
   avatarUrl?: string;
 
   @CreateDateColumn({ type: "timestamp" })

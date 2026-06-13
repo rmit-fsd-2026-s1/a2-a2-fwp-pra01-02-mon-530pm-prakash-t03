@@ -1,0 +1,67 @@
+/**
+ * GRAPHQL ADMIN BACKEND SERVICE - USER.TS
+ * 
+ * Purpose: Source code for GraphQL Admin Backend Service.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
+import { Entity, PrimaryColumn, Column, CreateDateColumn, OneToMany, OneToOne } from "typeorm";
+import { Venue } from "./Venue";
+import { Application } from "./Application";
+import { HirerDocument } from "./HirerDocument";
+import { VendorComment } from "./VendorComment";
+import { HireHistory } from "./HireHistory";
+
+@Entity("users")
+export class User {
+  @PrimaryColumn({ type: "varchar", length: 50 })
+  id!: string;
+
+  @Column({ type: "varchar", length: 100, unique: true })
+  email!: string;
+
+  @Column({ type: "varchar", length: 255 })
+  password!: string;
+
+  @Column({ type: "varchar", length: 20 })
+  role!: "hirer" | "vendor" | "admin";
+
+  @Column({ type: "varchar", length: 100 })
+  name!: string;
+
+  @Column({ type: "varchar", length: 20 })
+  phone!: string;
+
+  @Column({ type: "mediumtext", nullable: true })
+  avatarUrl?: string;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt!: Date;
+
+  // Relations
+  @OneToMany(() => Venue, (venue) => venue.vendor)
+  venues?: Venue[];
+
+  @OneToMany(() => Application, (application) => application.hir)
+  applications?: Application[];
+
+  @OneToOne(() => HirerDocument, (doc) => doc.user)
+  document?: HirerDocument;
+
+  @OneToMany(() => VendorComment, (comment) => comment.vendor)
+  authoredComments?: VendorComment[];
+
+  @OneToMany(() => VendorComment, (comment) => comment.hirer)
+  receivedComments?: VendorComment[];
+
+  @OneToMany(() => HireHistory, (history) => history.hirer)
+  hirerHistory?: HireHistory[];
+
+  @OneToMany(() => HireHistory, (history) => history.vendor)
+  vendorHistory?: HireHistory[];
+}

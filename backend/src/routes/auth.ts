@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - AUTH.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Router, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { User } from "../entity/User";
@@ -9,6 +21,9 @@ const router = Router();
 const userRepository = AppDataSource.getRepository(User);
 
 // Validation Helpers
+
+// Explanatory comment: I validate email addresses using a strict regular expression to confirm
+// correct syntax (non-space characters, @ symbol, domain, and extension) prior to executing database queries.
 const validateEmail = (email: string): string | null => {
   if (!email || !email.trim()) return "Email is required.";
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,6 +31,9 @@ const validateEmail = (email: string): string | null => {
   return null;
 };
 
+// Explanatory comment: Multi-factor validation for passwords forces high-entropy credentials
+// (at least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special character) to protect
+// user profiles (both hirers and vendors) against dictionary and brute-force attacks.
 const validatePassword = (password: string): string | null => {
   if (!password) return "Password is required.";
   if (password.length < 8) return "Password must be at least 8 characters.";
@@ -33,6 +51,8 @@ const validateName = (name: string): string | null => {
   return null;
 };
 
+// Explanatory comment: Validates Australian phone numbers, supporting standard 10-digit formats
+// (e.g. 04xxxxxxxx) or international formats prefixed with +61, ensuring reliable notifications.
 const validatePhone = (phone: string): string | null => {
   if (!phone || !phone.trim()) return "Phone number is required.";
   const re = /^(\+?61|0)[2-9]\d{8}$|^\d{10}$/;
@@ -78,11 +98,15 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "An account with this email address already exists." });
     }
 
-    // Generate specific ID style
+    // Explanatory comment: Generate role-based custom user IDs (e.g. hirer-abcde or vendor-xyz12).
+    // This allows immediate recognition of account roles during database audits or logging,
+    // and the random 5-character suffix prevents resource enumeration.
     const shortId = Math.random().toString(36).substring(2, 7);
     const userId = `${role}-${shortId}`;
 
-    // Hash password
+    // Explanatory comment: I salt and hash passwords using bcrypt with a work factor of 10.
+    // A cost factor of 10 offers an optimal balance between server resource efficiency and
+    // high protection resistance against offline brute-force cracking attempts.
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Save user

@@ -1,7 +1,20 @@
+/**
+ * REST API BACKEND SERVER - APPLICATIONS.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Router, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Application } from "../entity/Application";
 import { Venue } from "../entity/Venue";
+import { HireHistory } from "../entity/HireHistory";
 import { authenticateToken, AuthRequest } from "../middleware/auth";
 
 const router = Router();
@@ -118,6 +131,9 @@ router.get("/", authenticateToken as any, async (req: AuthRequest, res: Response
   try {
     let apps: Application[] = [];
 
+    // Explanatory comment: I isolate database query scopes by user role.
+    // Hirers should only retrieve applications they submitted (matching hirerId).
+    // Vendors should only retrieve applications for venues they own (filtered via nested venue.vendorId relationship).
     if (req.user.role === "hirer") {
       apps = await appRepository.find({
         where: { hirerId: req.user.id },
@@ -147,7 +163,7 @@ router.put("/:id/status", authenticateToken as any, async (req: AuthRequest, res
   }
 
   const { id } = req.params;
-  const { status, vendorComment } = req.body;
+  const { status, vendorComment, rating } = req.body;
 
   if (status !== "approved" && status !== "rejected") {
     return res.status(400).json({ message: "Invalid status value. Must be 'approved' or 'rejected'." });
@@ -172,6 +188,23 @@ router.put("/:id/status", authenticateToken as any, async (req: AuthRequest, res
     app.vendorComment = vendorComment || "";
     if (status === "approved") {
       app.approvedAt = new Date();
+
+      // Explanatory comment: When a vendor approves an application, I automatically create
+      // a HireHistory record. This registers the transaction and feeds the rating/review values
+      // back into the reputation calculation engine for that specific Hirer.
+      const historyRepository = AppDataSource.getRepository(HireHistory);
+      const shortId = Math.random().toString(36).substring(2, 7);
+      const historyId = `hist-${shortId}`;
+      const newHistory = historyRepository.create({
+        id: historyId,
+        hirerId: app.hirerId,
+        vendorId: app.venue.vendorId,
+        venueId: app.venueId,
+        eventName: app.eventName,
+        dateOfHire: app.eventDate,
+        rating: rating !== undefined ? parseInt(String(rating), 10) : 5,
+      });
+      await historyRepository.save(newHistory);
     } else {
       app.approvedAt = undefined;
     }

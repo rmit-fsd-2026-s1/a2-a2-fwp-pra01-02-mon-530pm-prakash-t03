@@ -43,14 +43,11 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
 const data_source_1 = require("./data-source");
-const create_db_1 = require("./create-db");
 const auth_1 = __importDefault(require("./routes/auth"));
 const venues_1 = __importDefault(require("./routes/venues"));
 const applications_1 = __importDefault(require("./routes/applications"));
 const documents_1 = __importDefault(require("./routes/documents"));
 const analytics_1 = __importDefault(require("./routes/analytics"));
-const express_graphql_1 = require("express-graphql");
-const schema_1 = require("./graphql/schema");
 // Load environment variables from .env
 dotenv.config({ path: path.join(__dirname, "../.env") });
 const app = (0, express_1.default)();
@@ -65,12 +62,6 @@ app.use("/api/venues", venues_1.default);
 app.use("/api/applications", applications_1.default);
 app.use("/api/documents", documents_1.default);
 app.use("/api/analytics", analytics_1.default);
-// GraphQL Endpoint (GraphiQL GUI enabled in development)
-app.use("/graphql", (0, express_graphql_1.graphqlHTTP)({
-    schema: schema_1.schema,
-    rootValue: schema_1.rootValue,
-    graphiql: true,
-}));
 // Simple Health Check Endpoint
 app.get("/api/health", (_req, res) => {
     res.json({
@@ -82,7 +73,6 @@ app.get("/api/health", (_req, res) => {
 // Initialize Database & Start Server
 const startServer = async () => {
     try {
-        await (0, create_db_1.createDatabaseIfNotExists)();
         await data_source_1.AppDataSource.initialize();
         console.log("MySQL Database connection successfully established via TypeORM.");
         app.listen(PORT, () => {

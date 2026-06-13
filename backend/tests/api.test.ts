@@ -179,90 +179,46 @@ describe("Venue Vendors Backend - E2E Integration Tests", () => {
     expect(resBizThreeDocs.body.document.credibilityScore).toBe(5.0);
   });
 
-  // Test 5: GraphQL Query resolvers validation
-  it("Test 5: should fetch venues and authenticate admin via GraphQL queries", async () => {
-    // 5a. Verify getAllVenues query
-    mockRepository.find.mockResolvedValueOnce([
-      { id: "venue-1", name: "Riverlight Terraces", location: "Melbourne", capacity: 100, pricePerHour: 200, suitability: [] },
-    ]);
+  // Test 5: Vendor Venue CRUD - Create Venue via REST
+  it("Test 5: should allow a vendor to add a new venue successfully via REST POST", async () => {
+    const vendorToken = generateTestToken("vendor-001", "vendor@vv.com", "vendor");
 
-    const resVenues = await request(app)
-      .post("/graphql")
-      .send({
-        query: `
-          query {
-            getAllVenues {
-              id
-              name
-              location
-            }
-          }
-        `,
-      });
-
-    expect(resVenues.status).toBe(200);
-    expect(resVenues.body.data.getAllVenues).toHaveLength(1);
-    expect(resVenues.body.data.getAllVenues[0].name).toBe("Riverlight Terraces");
-
-    // 5b. Verify adminLogin query
-    const adminPasswordHash = bcrypt.hashSync("AdminPass1!", 10);
-    mockRepository.findOneBy.mockResolvedValueOnce({
-      id: "admin-001",
-      email: "admin@vv.com",
-      password: adminPasswordHash,
-      role: "admin",
-      name: "Administrator",
-    });
-
-    const resLogin = await request(app)
-      .post("/graphql")
-      .send({
-        query: `
-          query {
-            adminLogin(email: "admin@vv.com", password: "AdminPass1!") {
-              token
-              user {
-                id
-                role
-                email
-              }
-            }
-          }
-        `,
-      });
-
-    expect(resLogin.status).toBe(200);
-    expect(resLogin.body.data.adminLogin).toHaveProperty("token");
-    expect(resLogin.body.data.adminLogin.user.role).toBe("admin");
-  });
-
-  // Test 6: GraphQL Mutation resolvers validation
-  it("Test 6: should execute Admin mutations (set venue featured status) via GraphQL", async () => {
-    // Mock getRepository(Venue).findOneBy to find the target venue
-    mockRepository.findOneBy.mockResolvedValueOnce({
-      id: "venue-1",
-      name: "Riverlight Terraces",
-      isFeatured: false,
-    });
-
-    // Mock save to return the venue with updated isFeatured
+    mockRepository.findOneBy.mockResolvedValueOnce({ id: "vendor-001" }); // mock vendorExists
     mockRepository.save.mockImplementationOnce((venue) => Promise.resolve(venue));
 
-    const resMutation = await request(app)
-      .post("/graphql")
+    const res = await request(app)
+      .post("/api/venues")
+      .set("Authorization", `Bearer ${vendorToken}`)
       .send({
-        query: `
-          mutation {
-            setVenueFeatured(venueId: "venue-1", isFeatured: true) {
-              id
-              isFeatured
-            }
-          }
-        `,
+        name: "Restricted Loft",
+        location: "50 Collins St",
+        capacity: 100,
+        suitability: ["Weddings"],
+        description: "A beautiful loft space for weddings and small events.",
+        pricePerHour: 250,
       });
 
-    expect(resMutation.status).toBe(200);
-    expect(resMutation.body.data.setVenueFeatured.id).toBe("venue-1");
-    expect(resMutation.body.data.setVenueFeatured.isFeatured).toBe(true);
+    expect(res.status).toBe(201);
+    expect(res.body.message).toBe("Venue added successfully.");
+    expect(res.body.venue.name).toBe("Restricted Loft");
+  });
+
+  // Test 6: Vendor Venue CRUD - Prevent deleting venue owned by another vendor via REST
+  it("Test 6: should prevent a vendor from deleting a venue they do not own via REST DELETE", async () => {
+    const vendorToken = generateTestToken("vendor-002", "vendor2@vv.com", "vendor");
+
+    // Mock venue findOneBy to return a venue owned by vendor-001
+    mockRepository.findOneBy.mockResolvedValueOnce({
+      id: "venue-001",
+      vendorId: "vendor-001", // owned by vendor-001
+      name: "Riverlight Terraces",
+    });
+
+    const res = await request(app)
+      .delete("/api/venues/venue-001")
+      .set("Authorization", `Bearer ${vendorToken}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toContain("Forbidden. You do not own this venue");
   });
 });

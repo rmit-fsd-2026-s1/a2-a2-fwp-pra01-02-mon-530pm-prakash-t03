@@ -1,3 +1,15 @@
+/**
+ * REST API BACKEND SERVER - HIREHISTORY.TS
+ * 
+ * Purpose: Source code for REST API Backend Server.
+ * 
+ * Command lines to execute/build/test this project:
+ * - Start development server (ts-node-dev): npm run dev
+ * - Compile TypeScript: npm run build
+ * - Start production node server: npm start
+ * - Run integration tests: npm test
+ */
+
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { User } from "./User";
 import { Venue } from "./Venue";
