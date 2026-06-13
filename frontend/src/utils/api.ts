@@ -15,7 +15,7 @@
 
 import type { Venue, Application, HirerDocuments } from '../types';
 
-const API_BASE = 'https://venue-vendor-backend-api.onrender.com';
+const API_BASE = 'https://venue-vendor-backend-api.onrender.com/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('vv_token');
