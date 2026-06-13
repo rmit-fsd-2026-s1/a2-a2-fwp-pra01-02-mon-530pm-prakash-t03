@@ -26,10 +26,8 @@ services:
         value: venue_vendors
 
   # 2. React TS Frontend Client (Static Site Hosting)
-  - type: web
+  - type: static
     name: venue-vendors-frontend-app
-    env: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishPath: dist
@@ -66,10 +64,8 @@ services:
         value: venue_vendors
 
   # 4. React TS Admin Frontend Client (Static Site Hosting)
-  - type: web
+  - type: static
     name: venue-vendors-admin-frontend-app
-    env: static
-    plan: free
     rootDir: admin-frontend
     buildCommand: npm install && npm run build
     publishPath: dist
