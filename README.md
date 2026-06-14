@@ -1,4 +1,7 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=23992247&assignment_repo_type=AssignmentRepo)
+**Group details**: A2-FWP-PRA01-02-Mon-5-30pm-Prakash-T03
+**Names**: Effin Justin
+**Student IDs**: s4132102
+**Github Repo URL**: `https://github.com/rmit-fsd-2026-s1/A2-FWP-PRA01-02-Mon-5-30pm-Prakash-T03.git`
 
 # Venue Vendors Full Stack Application
 
@@ -13,10 +16,10 @@ This repository has been restructured into **four separate projects** to fulfill
 
 ## Port Assignments & Services
 
-*   **Main Customer Frontend**: `http://localhost:5173`
-*   **Main Customer REST Backend**: `http://localhost:5000`
-*   **Admin Dashboard Frontend**: `http://localhost:5174`
-*   **Admin GraphQL Backend**: `http://localhost:5001`
+*   **Main Customer Frontend**: `https://venue-vendors-frontend-app.onrender.com/`
+*   **Main Customer REST Backend**: `https://venue-vendor-backend-api.onrender.com`
+*   **Admin Dashboard Frontend**: `https://venue-vendors-admin-frontend-app.onrender.com/`
+*   **Admin GraphQL Backend**: `https://venue-vendors-admin-backend-api.onrender.com`
 
 ---
 
@@ -60,25 +63,29 @@ To start the dev servers, run the respective commands in separate terminal shell
 ### 1. Main Client Website
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
 ### 2. Main REST API
 ```bash
 cd backend
-npm run dev
+npm install
+npm run start
 ```
 
 ### 3. Admin Dashboard
 ```bash
 cd admin-frontend
+npm install
 npm run dev
 ```
 
 ### 4. Admin GraphQL Server
 ```bash
 cd admin-backend
-npm run dev
+npm install
+npm run start
 ```
 
 ---
